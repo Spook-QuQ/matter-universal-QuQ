@@ -168,8 +168,8 @@
               bodyIds: {
                 bodyA: this.activeObjects[id].OwO?.bodies.bodyA.id,
                 bodyB: this.activeObjects[id].OwO?.bodies.bodyB.id,
-                defaultVariables
-              }
+              },
+              defaultVariables
             }
             return list
           } else {
@@ -245,13 +245,14 @@
           if (nextObjects[key].type === 'constraint') {
             const bodyIds = nextObjects[key].bodyIds
             if (!this.activeObjects[bodyIds.bodyA] || !this.activeObjects[bodyIds.bodyB]) return
+            console.log(nextObjects[key].defaultVariables);
             const newObject = new this.MatterObject({
               id: nextObjects[key].id,
               type: nextObjects[key].type,
               variables: {
                 bodyA: this.activeObjects[bodyIds.bodyA],
                 bodyB: this.activeObjects[bodyIds.bodyB],
-                ...nextObjects[key].defaultVariables || {}
+                ...(nextObjects[key].defaultVariables || {})
               }
             })
 
@@ -260,7 +261,7 @@
             const newObject = new this.MatterObject({
               id: nextObjects[key].id,
               type: nextObjects[key].type,
-              variables: nextObjects[key].defaultVariables
+              variables: nextObjects[key].defaultVariables || {}
             })
 
             this.add(newObject)
