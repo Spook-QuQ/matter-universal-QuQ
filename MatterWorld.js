@@ -158,12 +158,17 @@
           } = this.activeObjects[id]
 
           if (this.activeObjects[id].OwO?.type === 'constraint') {
+            const defaultVariables = this.activeObjects[id].OwO?.defaultVariables
+            delete defaultVariables.bodyA
+            delete defaultVariables.bodyB
+
             list[id] = {
               id,
               type: this.activeObjects[id].OwO?.type,
               bodyIds: {
                 bodyA: this.activeObjects[id].OwO?.bodies.bodyA.id,
-                bodyB: this.activeObjects[id].OwO?.bodies.bodyB.id
+                bodyB: this.activeObjects[id].OwO?.bodies.bodyB.id,
+                defaultVariables
               }
             }
             return list
@@ -187,6 +192,8 @@
     }
 
     _updateStateOfObject (nextObject, target) {
+      if (!nextObject.state) return // constraint は state が無いのでここで終了
+
       if (target && target.OwO) {
         Object.keys(nextObject.state).forEach(property => {
           switch (property) {
@@ -237,28 +244,31 @@
         if (!target) {
           if (nextObjects[key].type === 'constraint') {
             const bodyIds = nextObjects[key].bodyIds
+            if (!this.activeObjects[bodyIds.bodyA] || !this.activeObjects[bodyIds.bodyB]) return
             const newObject = new this.MatterObject({
+              id: nextObjects[key].id,
               type: nextObjects[key].type,
               variables: {
                 bodyA: this.activeObjects[bodyIds.bodyA],
-                bodyB: this.activeObjects[bodyIds.bodyB]
+                bodyB: this.activeObjects[bodyIds.bodyB],
+                ...nextObjects[key].defaultVariables || {}
               }
             })
 
             this.add(newObject)
           } else if (nextObjects[key].defaultVariables) {
             const newObject = new this.MatterObject({
+              id: nextObjects[key].id,
               type: nextObjects[key].type,
               variables: nextObjects[key].defaultVariables
             })
 
             this.add(newObject)
-            // body の OwO をわざわざ使っているので、MatterObjectOwO の body を渡す必要がある
+            // update するのは body だけなので
             this._updateStateOfObject(nextObjects[key], newObject.body)
           }
         }
 
-        // if (target.type === 'constraint') return
         if (target?.type === 'constraint') return
         this._updateStateOfObject(nextObjects[key], target)
       })

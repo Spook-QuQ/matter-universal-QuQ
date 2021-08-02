@@ -25,12 +25,13 @@
       } = this.Matter
 
       const {
+        id,
         type,
         variables // array
       } = ctx
 
       if (type === 'constraint') {
-        this.body = Constraint.create(variables)
+        this.body = Constraint.create({...variables})
         this.body.OwO = this
         this.bodies = {
           bodyA: variables.bodyA,
@@ -39,11 +40,14 @@
       } else {
         this.body = Bodies[type](...variables)
         this.body.OwO = this
+        this.currentScale = { x: 1, y: 1 }
       }
 
-      this.type = type
+      if (id) this.body.id = id
+
       this.defaultVariables = variables
-      this.currentScale = { x: 1, y: 1 }
+
+      this.type = type
     }
 
     add () {
