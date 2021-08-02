@@ -3,14 +3,32 @@
   const moduleName = 'MatterWorld'
 
   const MatterWorldQuQ = class MatterWorldQuQ {
-    constructor (_Matter = Matter, _MatterObject = MatterObject) {
-      this.Matter = _Matter
-      this.MatterObject = _MatterObject
+    static Matter
+    static MatterObject
 
+    static setMatter (_Matter) {
+      this.Matter = _Matter
+    }
+    static setMatterObject (_MatterObject) {
+      this.MatterObject = _MatterObject
+    }
+
+    // constructor (_Matter = Matter, _MatterObject = MatterObject) {
+    //   this.Matter = _Matter
+    //   this.MatterObject = _MatterObject
+    constructor () {
+
+      this.Matter = MatterWorldQuQ.Matter
+      this.MatterObject = MatterWorldQuQ.MatterObject
+
+      // const {
+      //   Engine,
+      //   Runner
+      // } = _Matter
       const {
         Engine,
         Runner
-      } = _Matter
+      } = this.Matter
 
       const engine = Engine.create()
       const runner = Runner.create()
@@ -30,7 +48,7 @@
 
     _ifMatterObjectOwO (obj) {
       let rsObject = null
-      if (obj.constructor.name === 'MatterObjectOwO') {
+      if (obj.constructor === this.MatterObject) {
         // obj.engine = this.engine
         rsObject = obj.body
         obj.add = () => this.add(obj)
@@ -60,7 +78,7 @@
     }
 
     remove (object) {
-      const rsObject = object.constructor.name === 'MatterObjectOwO'
+      const rsObject = object.constructor === this.MatterObject
        ? object.body
        : object
 
@@ -130,25 +148,38 @@
     get state () {
       return {
         // currentObjectIndex: this.currentObjectIndex,
-        activeObjects: Object.keys(this.activeObjects).reduce((list, key) => {
+        activeObjects: Object.keys(this.activeObjects).reduce((list, id) => {
           const {
             angle,
             angularVelocity,
             label,
             position,
             velocity,
-          } = this.activeObjects[key]
-          list[key] = {
-            id: key,
-            state: {
-              angle,
-              angularVelocity,
-              position: {...position || {}},
-              velocity: {...velocity || {}},
-            },
-            currentScale: this.activeObjects[key].OwO?.currentScale,
-            type: this.activeObjects[key].OwO?.type,
-            defaultVariables: this.activeObjects[key].OwO?.defaultVariables
+          } = this.activeObjects[id]
+
+          if (this.activeObjects[id].OwO?.type === 'constraint') {
+            list[id] = {
+              id,
+              type: this.activeObjects[id].OwO?.type,
+              bodyIds: {
+                bodyA: this.activeObjects[id].OwO?.bodies.bodyA.id,
+                bodyB: this.activeObjects[id].OwO?.bodies.bodyB.id
+              }
+            }
+            return list
+          } else {
+            list[id] = {
+              id,
+              state: {
+                angle,
+                angularVelocity,
+                position: {...position || {}},
+                velocity: {...velocity || {}},
+              },
+              currentScale: this.activeObjects[id].OwO?.currentScale,
+              type: this.activeObjects[id].OwO?.type,
+              defaultVariables: this.activeObjects[id].OwO?.defaultVariables
+            }
           }
           return list
         }, {})
@@ -191,7 +222,7 @@
       const keysOfNextObjects = Object.keys(nextObjects)
       const keysOfPrevObjects = Object.keys(this.activeObjects)
 
-      // 新しい state に存在しないオブジェクトを削除
+      // next の state に存在しないオブジェクトを prev から削除
       keysOfPrevObjects
         .filter(key => !keysOfNextObjects.includes(key))
         .forEach(deleteTargetKey => {
@@ -204,18 +235,31 @@
 
         // 現在のstateに、更新対象のオブジェクトが存在しない場合に追加する
         if (!target) {
-          if (nextObjects[key].defaultVariables) {
+          if (nextObjects[key].type === 'constraint') {
+            const bodyIds = nextObjects[key].bodyIds
+            const newObject = new this.MatterObject({
+              type: nextObjects[key].type,
+              variables: {
+                bodyA: this.activeObjects[bodyIds.bodyA],
+                bodyB: this.activeObjects[bodyIds.bodyB]
+              }
+            })
+
+            this.add(newObject)
+          } else if (nextObjects[key].defaultVariables) {
             const newObject = new this.MatterObject({
               type: nextObjects[key].type,
               variables: nextObjects[key].defaultVariables
             })
-            // console.log(nextObjects[key].defaultVariables);
+
             this.add(newObject)
             // body の OwO をわざわざ使っているので、MatterObjectOwO の body を渡す必要がある
             this._updateStateOfObject(nextObjects[key], newObject.body)
           }
         }
 
+        // if (target.type === 'constraint') return
+        if (target?.type === 'constraint') return
         this._updateStateOfObject(nextObjects[key], target)
       })
     }

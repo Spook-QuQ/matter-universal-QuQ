@@ -3,20 +3,43 @@
   const moduleName = 'MatterObject'
 
   const MatterObjectQuQ = class MatterObjectQuQ {
-    constructor (ctx, _Matter = Matter) {
+    static Matter
+
+    static setMatter (_Matter) {
       this.Matter = _Matter
+    }
+
+    // constructor (ctx, _Matter = Matter) {
+    //   this.Matter = _Matter
+
+    constructor (ctx) {
+      this.Matter = MatterObjectQuQ.Matter
+
+      // const {
+      //   Bodies,
+      // } = _Matter
 
       const {
         Bodies,
-      } = _Matter
+        Constraint
+      } = this.Matter
 
       const {
         type,
         variables // array
       } = ctx
 
-      this.body = Bodies[type](...variables)
-      this.body.OwO = this
+      if (type === 'constraint') {
+        this.body = Constraint.create(variables)
+        this.body.OwO = this
+        this.bodies = {
+          bodyA: variables.bodyA,
+          bodyB: variables.bodyB
+        }
+      } else {
+        this.body = Bodies[type](...variables)
+        this.body.OwO = this
+      }
 
       this.type = type
       this.defaultVariables = variables
