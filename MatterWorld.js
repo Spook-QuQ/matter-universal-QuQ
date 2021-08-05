@@ -148,7 +148,7 @@ export default class MatterWorldQuQ {
         const {
           angle,
           angularVelocity,
-          label,
+          // label,
           position,
           velocity,
         } = this.activeObjects[id]
