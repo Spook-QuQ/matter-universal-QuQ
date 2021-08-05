@@ -1,3 +1,9 @@
+// TODO:
+// scaleで変更されたすでに存在しているオブジェクトが含まれる state をワールドへ set する時
+// の処理をまだ描いていない、ので書く
+// [!] stateを受け取る旅に currentScale を使って scale をしてしまうと
+// 無限にサイズが変わってしまう
+
 export default class MatterWorldQuQ {
   static Matter
   static MatterObject
@@ -179,8 +185,8 @@ export default class MatterWorldQuQ {
               angularVelocity,
               position: {...position || {}},
               velocity: {...velocity || {}},
+              currentScale: this.activeObjects[id].OwO && this.activeObjects[id].OwO.currentScale,
             },
-            currentScale: this.activeObjects[id].OwO && this.activeObjects[id].OwO.currentScale,
             type: this.activeObjects[id].OwO && this.activeObjects[id].OwO.type,
             defaultVariables: this.activeObjects[id].OwO && this.activeObjects[id].OwO.defaultVariables
           }
@@ -199,7 +205,7 @@ export default class MatterWorldQuQ {
           case 'angle': return target.OwO.setAngle(nextObject.state[property])
           case 'angularVelocity': return target.OwO.setAngularVelocity(nextObject.state[property])
           case 'position': return target.OwO.setPosition(nextObject.state[property])
-          case 'velocity': return target.OwO.setVelocity(nextObject.state[property])
+          case 'velocity': return target.OwO.setVelocity(nextObject.state[property]) // これでは無限にサイズが変わってしまう
         }
       })
     } else if (target) {
