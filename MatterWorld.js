@@ -156,17 +156,17 @@ export default class MatterWorldQuQ {
           velocity,
         } = this.activeObjects[id]
 
-        if (this.activeObjects[id].OwO?.type === 'constraint') {
-          const defaultVariables = this.activeObjects[id].OwO?.defaultVariables
+        if (this.activeObjects[id].OwO && this.activeObjects[id].OwO.type === 'constraint') {
+          const defaultVariables = this.activeObjects[id].OwO && this.activeObjects[id].OwO.defaultVariables
           delete defaultVariables.bodyA
           delete defaultVariables.bodyB
 
           list[id] = {
             id,
-            type: this.activeObjects[id].OwO?.type,
+            type: this.activeObjects[id].OwO && this.activeObjects[id].OwO.type,
             bodyIds: {
-              bodyA: this.activeObjects[id].OwO?.bodies.bodyA.id,
-              bodyB: this.activeObjects[id].OwO?.bodies.bodyB.id,
+              bodyA: this.activeObjects[id].OwO && this.activeObjects[id].OwO.bodies.bodyA.id,
+              bodyB: this.activeObjects[id].OwO && this.activeObjects[id].OwO.bodies.bodyB.id,
             },
             defaultVariables
           }
@@ -180,9 +180,9 @@ export default class MatterWorldQuQ {
               position: {...position || {}},
               velocity: {...velocity || {}},
             },
-            currentScale: this.activeObjects[id].OwO?.currentScale,
-            type: this.activeObjects[id].OwO?.type,
-            defaultVariables: this.activeObjects[id].OwO?.defaultVariables
+            currentScale: this.activeObjects[id].OwO && this.activeObjects[id].OwO.currentScale,
+            type: this.activeObjects[id].OwO && this.activeObjects[id].OwO.type,
+            defaultVariables: this.activeObjects[id].OwO && this.activeObjects[id].OwO.defaultVariables
           }
         }
         return list
@@ -269,7 +269,7 @@ export default class MatterWorldQuQ {
         }
       }
 
-      if (target?.type === 'constraint') return
+      if (target && target.type === 'constraint') return
       this._updateStateOfObject(nextObjects[key], target)
     })
   }
