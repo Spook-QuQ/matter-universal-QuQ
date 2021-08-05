@@ -270,4 +270,22 @@ export default class MatterWorldQuQ {
       this._updateStateOfObject(nextObjects[key], target)
     })
   }
+
+  deleteWorld () {
+    const {
+      World,
+      Engine,
+      Render,
+      Runner
+    } = this.Matter
+
+    Render.stop(this.renderer)
+    Runner.stop(this.runner)
+    World.clear(this.engine.world)
+    Engine.clear(this.engine)
+    this.renderer.canvas.remove()
+    this.renderer.canvas = null
+    this.renderer.context = null
+
+  }
 }
