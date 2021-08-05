@@ -40,6 +40,9 @@ export default class MatterWorldQuQ {
 
     // this.currentObjectIndex = 0
     this.activeObjects = {}
+
+    this.existEvent = {}
+    this.eventFuncs = {}
   }
 
   _ifMatterObjectOwO (obj) {
@@ -269,6 +272,34 @@ export default class MatterWorldQuQ {
       if (target?.type === 'constraint') return
       this._updateStateOfObject(nextObjects[key], target)
     })
+  }
+
+  addEvent (ctx) {
+    const {
+      type,
+      func
+    } = ctx
+
+    if (!this.existEvent[type]) {
+      this.existEvent[type] = true
+      this.eventFuncs[type] = []
+
+      this.Matter.Events.on(this.runner, type, () => {
+        this.eventFuncs[type].forEach(func => func())
+      })
+    }
+
+    this.eventFuncs[type].push(func)
+  }
+
+  removeEvent (ctx) {
+    const {
+      type,
+      func
+    } = ctx
+
+    const index = this.eventFuncs[type].indexOf(func)
+    this.eventFuncs[type].splice(index, 1)
   }
 
   deleteWorld () {
