@@ -49,6 +49,10 @@ export default class MatterWorldQuQ {
 
     this.existEvent = {}
     this.eventFuncs = {}
+
+    this.timestamp = 0
+
+    this.nextObjectEvents = []
   }
 
   _ifMatterObjectOwO (obj) {
@@ -58,6 +62,7 @@ export default class MatterWorldQuQ {
       rsObject = obj.body
       obj.add = () => this.add(obj)
       obj.remove = () => this.remove(obj)
+      obj.addObjectEvent = ctx => this.nextObjectEvents.push(ctx)
     } else {
       rsObject = obj
     }
@@ -151,7 +156,9 @@ export default class MatterWorldQuQ {
   }
 
   get state () {
-    return {
+
+    const state = {
+      timestamp: new Date().getTime(),
       // currentObjectIndex: this.currentObjectIndex,
       activeObjects: Object.keys(this.activeObjects).reduce((list, id) => {
         const {
@@ -160,8 +167,10 @@ export default class MatterWorldQuQ {
           // label,
           position,
           velocity,
+          collisionFilter
         } = this.activeObjects[id]
 
+        // constraint の場合
         if (this.activeObjects[id].OwO && this.activeObjects[id].OwO.type === 'constraint') {
           const defaultVariables = this.activeObjects[id].OwO && this.activeObjects[id].OwO.defaultVariables
           delete defaultVariables.bodyA
@@ -177,6 +186,8 @@ export default class MatterWorldQuQ {
             defaultVariables
           }
           return list
+
+        // 通常の object の場合
         } else {
           list[id] = {
             id,
@@ -186,20 +197,42 @@ export default class MatterWorldQuQ {
               position: {...position || {}},
               velocity: {...velocity || {}},
               currentScale: this.activeObjects[id].OwO && this.activeObjects[id].OwO.currentScale,
+              collisionFilter
             },
             type: this.activeObjects[id].OwO && this.activeObjects[id].OwO.type,
             defaultVariables: this.activeObjects[id].OwO && this.activeObjects[id].OwO.defaultVariables
           }
         }
         return list
-      }, {})
+      }, {}),
+      objectEvents: [...this.nextObjectEvents]
     }
+
+    this.nextObjectEvents = []
+
+    return state
   }
 
-  _updateStateOfObject (nextObject, target) {
+  _updateStateOfObject (nextObject, target, options = {}) {
     if (!nextObject.state) return // constraint は state が無いのでここで終了
 
+    const {
+      initialize
+    } = options
+
     if (target && target.OwO) {
+
+      if (initialize) {
+        if (nextObject.state.currentScale) {
+          target.OwO.scale(nextObject.state.currentScale)
+        }
+        if (nextObject.state.collisionFilter) {
+          Object.keys(nextObject.state.collisionFilter).forEach(keyName => {
+            target.OwO.body.collisionFilter[keyName] = nextObject.state.collisionFilter[keyName]
+          })
+        }
+      }
+
       Object.keys(nextObject.state).forEach(property => {
         switch (property) {
           case 'angle': return target.OwO.setAngle(nextObject.state[property])
@@ -224,8 +257,26 @@ export default class MatterWorldQuQ {
   set state (_state = {}) {
     const {
       // currentObjectIndex,
-      activeObjects: nextObjects
+      timestamp,
+      activeObjects: nextObjects,
+      objectEvents
     } = _state
+
+    if (objectEvents && Array.isArray(objectEvents) && objectEvents.length) {
+      objectEvents.forEach(event => {
+        const {
+          id,
+          type,
+          value
+        } = event
+
+        const target = this.activeObjects[id]
+        if (target && target.OwO) target.OwO[type](value)
+      })
+    }
+
+    if (this.timestamp > timestamp) return
+    this.timestamp = timestamp
 
     // if (!currentObjectIndex) return
     if (!nextObjects) return
@@ -247,6 +298,8 @@ export default class MatterWorldQuQ {
 
       // 現在のstateに、更新対象のオブジェクトが存在しない場合に追加する
       if (!target) {
+
+        // constraint のオブジェクト
         if (nextObjects[key].type === 'constraint') {
           const bodyIds = nextObjects[key].bodyIds
           if (!this.activeObjects[bodyIds.bodyA] || !this.activeObjects[bodyIds.bodyB]) return
@@ -262,6 +315,8 @@ export default class MatterWorldQuQ {
           })
 
           this.add(newObject)
+
+        // 普通のオブジェクト
         } else if (nextObjects[key].defaultVariables) {
           const newObject = new this.MatterObject({
             id: nextObjects[key].id,
@@ -271,7 +326,7 @@ export default class MatterWorldQuQ {
 
           this.add(newObject)
           // update するのは body だけなので
-          this._updateStateOfObject(nextObjects[key], newObject.body)
+          this._updateStateOfObject(nextObjects[key], newObject.body, { initialize: true })
         }
       }
 
