@@ -123,4 +123,14 @@ export default class MatterObjectQuQ {
     return this
   }
 
+  setGroup (id) {
+    this.body.collisionFilter.group = Math.abs(id) * -1
+    this.addObjectEvent({
+      id: this.body.id,
+      type: 'setGroup',
+      value: id
+    })
+    return this
+  }
+
 }
