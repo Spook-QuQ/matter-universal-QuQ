@@ -46,6 +46,7 @@ export default class MatterObjectQuQ {
     this.type = type
   }
 
+  // worldOwO で定義される
   add () {
     // if (!this.engine) return
     // this.Matter.Composite.add(this.engine.world, this.body)
@@ -53,12 +54,16 @@ export default class MatterObjectQuQ {
     console.log('Not added to any world yet')
   }
 
+  // worldOwO で定義される
   remove () {
     // if (!this.engine) return
     // this.Matter.World.remove(this.engine.world, this.body)
     // return this
     console.log('Not added to any world yet')
   }
+
+  // worldOwO で定義される
+  addObjectEvent () {}
 
   rotate (rotation) {
     this.Matter.Body.rotate(this.body, rotation)
@@ -77,6 +82,11 @@ export default class MatterObjectQuQ {
 
   setInertia (inertia) {
     this.Matter.Body.setInertia(this.body, inertia)
+    this.addObjectEvent({
+      id: this.body.id,
+      type: 'setInertia',
+      value: inertia
+    })
     return this
   }
 
@@ -100,6 +110,11 @@ export default class MatterObjectQuQ {
     this.Matter.Body.scale(this.body, x, y)
     this.currentScale.x *= x
     this.currentScale.y *= y
+    this.addObjectEvent({
+      id: this.body.id,
+      type: 'scale',
+      value: ctx
+    })
     return this
   }
 
