@@ -327,6 +327,7 @@ export default class MatterWorldQuQ {
           this.add(newObject)
           // update するのは body だけなので
           this._updateStateOfObject(nextObjects[key], newObject.body, { initialize: true })
+          this.nextObjectEvents = []
         }
       }
 
