@@ -386,7 +386,7 @@ export default class MatterWorldQuQ {
     } = ctx
 
     const index = this.eventFuncs[type].indexOf(func)
-    this.eventFuncs[type].splice(index, 1)
+    if (0 <= index) this.eventFuncs[type].splice(index, 1)
   }
 
   deleteWorld () {
