@@ -1,9 +1,11 @@
-export default class MatterObjectQuQ {
-  static Matter
+import Matter from 'matter-js'
 
-  static setMatter (_Matter) {
-    this.Matter = _Matter
-  }
+export default class MatterObjectQuQ {
+  static Matter = Matter
+
+  // static setMatter (_Matter) {
+  //   this.Matter = _Matter
+  // }
 
   // constructor (ctx, _Matter = Matter) {
   //   this.Matter = _Matter
@@ -105,6 +107,11 @@ export default class MatterObjectQuQ {
     return this
   }
 
+  applyForce (from, to) {
+    this.Matter.Body.applyForce(this.body, from, to)
+    return this
+  }
+
   scale (ctx) {
     const { x, y } = ctx
     this.Matter.Body.scale(this.body, x, y)
@@ -128,6 +135,26 @@ export default class MatterObjectQuQ {
     this.addObjectEvent({
       id: this.body.id,
       type: 'setGroup',
+      value: id
+    })
+    return this
+  }
+
+  setCategory (id) {
+    this.body.collisionFilter.category = id
+    this.addObjectEvent({
+      id: this.body.id,
+      type: 'setCategory',
+      value: id
+    })
+    return this
+  }
+
+  setMask (id) {
+    this.body.collisionFilter.mask = id
+    this.addObjectEvent({
+      id: this.body.id,
+      type: 'setMask',
       value: id
     })
     return this

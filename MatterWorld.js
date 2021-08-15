@@ -4,21 +4,33 @@
 // [!] stateを受け取る旅に currentScale を使って scale をしてしまうと
 // 無限にサイズが変わってしまう
 
-export default class MatterWorldQuQ {
-  static Matter
-  static MatterObject
+import Matter from 'matter-js'
+import MatterObject from '../matter-universal-QuQ/MatterObject.js'
 
-  static setMatter (_Matter) {
-    this.Matter = _Matter
-  }
-  static setMatterObject (_MatterObject) {
-    this.MatterObject = _MatterObject
+export default class MatterWorldQuQ {
+  static Matter = Matter
+  // static MatterObject
+  static MatterObject = MatterObject
+
+  // static setMatter (_Matter) {
+  //   this.Matter = _Matter
+  // }
+  // static setMatter (_Matter) {
+  //   this.Matter = _Matter
+  //   MatterObject.setMatter(_Matter)
+  // }
+  // static setMatterObject (_MatterObject) {
+  //   this.MatterObject = _MatterObject
+  // }
+
+  static get Object () {
+    return MatterWorldQuQ.MatterObject
   }
 
   // constructor (_Matter = Matter, _MatterObject = MatterObject) {
   //   this.Matter = _Matter
   //   this.MatterObject = _MatterObject
-  constructor () {
+  constructor (options = {}) {
 
     this.Matter = MatterWorldQuQ.Matter
     this.MatterObject = MatterWorldQuQ.MatterObject
@@ -32,7 +44,7 @@ export default class MatterWorldQuQ {
       Runner
     } = this.Matter
 
-    const engine = Engine.create()
+    const engine = Engine.create(options)
     const runner = Runner.create()
     Runner.run(runner, engine)
 
@@ -60,8 +72,14 @@ export default class MatterWorldQuQ {
     if (obj.constructor === this.MatterObject) {
       // obj.engine = this.engine
       rsObject = obj.body
-      obj.add = () => this.add(obj)
-      obj.remove = () => this.remove(obj)
+      obj.add = () => {
+        this.add(obj)
+        return obj
+      }
+      obj.remove = () => {
+        this.remove(obj)
+        return obj
+      }
       obj.addObjectEvent = ctx => this.nextObjectEvents.push(ctx)
     } else {
       rsObject = obj
@@ -89,18 +107,25 @@ export default class MatterWorldQuQ {
 
   remove (object) {
     const rsObject = object.constructor === this.MatterObject
-     ? object.body
-     : object
+      ? object.body
+      : object
 
     // delete this.activeObjects[rsObject._objectIndex]
     delete this.activeObjects[rsObject.id]
     this.Matter.World.remove(this.engine.world, rsObject)
   }
 
-  makeRenderer (element) {
+  makeRenderer (element, options = {
+            width: 800,
+            height: 600,
+            showAngleIndicator: true,
+            showCollisions: true,
+            showVelocity: true
+        }) {
     this.renderer = this.Matter.Render.create({
         element,
-        engine: this.engine
+        engine: this.engine,
+        options
     })
     return this
   }
@@ -262,6 +287,9 @@ export default class MatterWorldQuQ {
       objectEvents
     } = _state
 
+    if (this.timestamp > timestamp) return
+    this.timestamp = timestamp
+
     if (objectEvents && Array.isArray(objectEvents) && objectEvents.length) {
       objectEvents.forEach(event => {
         const {
@@ -274,9 +302,6 @@ export default class MatterWorldQuQ {
         if (target && target.OwO) target.OwO[type](value)
       })
     }
-
-    if (this.timestamp > timestamp) return
-    this.timestamp = timestamp
 
     // if (!currentObjectIndex) return
     if (!nextObjects) return
@@ -372,13 +397,16 @@ export default class MatterWorldQuQ {
       Runner
     } = this.Matter
 
-    Render.stop(this.renderer)
+    if (this.renderer) {
+      Render.stop(this.renderer)
+      this.renderer.canvas.remove()
+      this.renderer.canvas = null
+      this.renderer.context = null
+      this.renderer = null
+    }
     Runner.stop(this.runner)
     World.clear(this.engine.world)
     Engine.clear(this.engine)
-    this.renderer.canvas.remove()
-    this.renderer.canvas = null
-    this.renderer.context = null
 
   }
 }
