@@ -120,7 +120,10 @@ export default class MatterWorldQuQ {
             height: 600,
             showAngleIndicator: true,
             showCollisions: true,
-            showVelocity: true
+            showVelocity: true,
+            showStats: true,
+            showPerformance: true,
+            // showPositions: true
         }) {
     this.renderer = this.Matter.Render.create({
         element,
@@ -389,7 +392,7 @@ export default class MatterWorldQuQ {
     if (0 <= index) this.eventFuncs[type].splice(index, 1)
   }
 
-  deleteWorld () {
+  destroy () {
     const {
       World,
       Engine,
