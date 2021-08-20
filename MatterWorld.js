@@ -89,6 +89,11 @@ export default class MatterWorldQuQ {
     // this.activeObjects[index] = rsObject
     this.activeObjects[rsObject.id] = rsObject
     // rsObject._objectIndex = index
+
+    if (this.eventFuncs['addObject']) {
+      this.eventFuncs['addObject'].forEach(func => func(rsObject))
+    }
+
     return rsObject
   }
 
@@ -98,17 +103,23 @@ export default class MatterWorldQuQ {
       const rsObjects = object.map(obj => this._ifMatterObjectOwO(obj))
       this.Matter.Composite.add(this.engine.world, rsObjects)
 
-    } else { // 配列ではない場合
+    }
+    else { // 配列ではない場合
       let rsObject = this._ifMatterObjectOwO(object)
       this.Matter.Composite.add(this.engine.world, rsObject)
-
     }
+
+    // イベントは_ifMatterObjectOwO の中
   }
 
   remove (object) {
     const rsObject = object.constructor === this.MatterObject
       ? object.body
       : object
+
+    if (this.eventFuncs['removeObject']) {
+      this.eventFuncs['removeObject'].forEach(func => func(rsObject))
+    }
 
     // delete this.activeObjects[rsObject._objectIndex]
     delete this.activeObjects[rsObject.id]
@@ -185,8 +196,11 @@ export default class MatterWorldQuQ {
 
   get state () {
 
+    // 分離した方が早く処理されるかと思って分けてみた
+    const timestamp = new Date().getTime()
+
     const state = {
-      timestamp: new Date().getTime(),
+      timestamp,
       // currentObjectIndex: this.currentObjectIndex,
       activeObjects: Object.keys(this.activeObjects).reduce((list, id) => {
         const {
@@ -364,6 +378,8 @@ export default class MatterWorldQuQ {
     })
   }
 
+  // 独自のイベント
+  // addObject removeObject
   addEvent (ctx) {
     const {
       type,
@@ -374,9 +390,11 @@ export default class MatterWorldQuQ {
       this.existEvent[type] = true
       this.eventFuncs[type] = []
 
-      this.Matter.Events.on(this.runner, type, () => {
-        this.eventFuncs[type].forEach(func => func())
-      })
+      if (type !== 'addObject' && type !== 'removeObject') {
+        this.Matter.Events.on(this.runner, type, () => {
+          this.eventFuncs[type].forEach(func => func())
+        })
+      }
     }
 
     this.eventFuncs[type].push(func)
