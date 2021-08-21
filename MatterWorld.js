@@ -391,8 +391,8 @@ export default class MatterWorldQuQ {
       this.eventFuncs[type] = []
 
       if (type !== 'addObject' && type !== 'removeObject') {
-        this.Matter.Events.on(this.runner, type, () => {
-          this.eventFuncs[type].forEach(func => func())
+        this.Matter.Events.on(this.runner, type, e => {
+          this.eventFuncs[type].forEach(func => func(e))
         })
       }
     }
