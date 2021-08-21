@@ -4,14 +4,14 @@ export default class MatterObjectQuQ {
   static Matter = Matter
 
   // static setMatter (_Matter) {
-  //   this.Matter = _Matter
+  //   const Matter = _Matter
   // }
 
   // constructor (ctx, _Matter = Matter) {
-  //   this.Matter = _Matter
+  //   const Matter = _Matter
 
   constructor (ctx) {
-    this.Matter = MatterObjectQuQ.Matter
+    const Matter = MatterObjectQuQ.Matter
 
     // const {
     //   Bodies,
@@ -20,7 +20,7 @@ export default class MatterObjectQuQ {
     const {
       Bodies,
       Constraint
-    } = this.Matter
+    } = Matter
 
     const {
       id,
@@ -51,7 +51,7 @@ export default class MatterObjectQuQ {
   // worldOwO で定義される
   add () {
     // if (!this.engine) return
-    // this.Matter.Composite.add(this.engine.world, this.body)
+    // const Matter.Composite.add(this.engine.world, this.body)
     // return this
     console.log('Not added to any world yet')
   }
@@ -59,7 +59,7 @@ export default class MatterObjectQuQ {
   // worldOwO で定義される
   remove () {
     // if (!this.engine) return
-    // this.Matter.World.remove(this.engine.world, this.body)
+    // const Matter.World.remove(this.engine.world, this.body)
     // return this
     console.log('Not added to any world yet')
   }
@@ -68,22 +68,22 @@ export default class MatterObjectQuQ {
   addObjectEvent () {}
 
   rotate (rotation) {
-    this.Matter.Body.rotate(this.body, rotation)
+    Matter.Body.rotate(this.body, rotation)
     return this
   }
 
   setAngle (angle) {
-    this.Matter.Body.setAngle(this.body, angle)
+    Matter.Body.setAngle(this.body, angle)
     return this
   }
 
   setAngularVelocity (velocity) {
-    this.Matter.Body.setAngularVelocity(this.body, velocity)
+    Matter.Body.setAngularVelocity(this.body, velocity)
     return this
   }
 
   setInertia (inertia) {
-    this.Matter.Body.setInertia(this.body, inertia)
+    Matter.Body.setInertia(this.body, inertia)
     this.addObjectEvent({
       id: this.body.id,
       type: 'setInertia',
@@ -93,28 +93,28 @@ export default class MatterObjectQuQ {
   }
 
   translate (translation) {
-    this.Matter.Body.translate(this.body, translation)
+    Matter.Body.translate(this.body, translation)
     return this
   }
 
   setPosition(position) {
-    this.Matter.Body.setPosition(this.body, position)
+    Matter.Body.setPosition(this.body, position)
     return this
   }
 
   setVelocity (velocity) {
-    this.Matter.Body.setVelocity(this.body, velocity)
+    Matter.Body.setVelocity(this.body, velocity)
     return this
   }
 
   applyForce (from, to) {
-    this.Matter.Body.applyForce(this.body, from, to)
+    Matter.Body.applyForce(this.body, from, to)
     return this
   }
 
   scale (ctx) {
     const { x, y } = ctx
-    this.Matter.Body.scale(this.body, x, y)
+    Matter.Body.scale(this.body, x, y)
     this.currentScale.x *= x
     this.currentScale.y *= y
     this.addObjectEvent({
@@ -126,7 +126,7 @@ export default class MatterObjectQuQ {
   }
 
   setStatic (isStatic) {
-    this.Matter.Body.setStatic(this.body, isStatic)
+    Matter.Body.setStatic(this.body, isStatic)
     return this
   }
 
